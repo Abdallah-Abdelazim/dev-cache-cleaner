@@ -48,7 +48,8 @@ Done — removed 3 old version directories.
 
 ### Requirements
 
-- **bash** 4+
+- **Platform:** macOS or Linux
+- **bash** 4.2+ — macOS ships bash 3.2, so install a newer one (`brew install bash`) and make sure it comes first on `PATH`
 - **`sort -V`** — available natively on Linux and macOS 12+
 
 ## clean-xcode-cache
@@ -89,6 +90,7 @@ Default run removes:
 
 ### Requirements
 
+- **Platform:** macOS only (exits with an error elsewhere)
 - **bash** 3.2+ (macOS default)
 - **Xcode command line tools** (`xcrun`) for the simulator step under `--all`
 
