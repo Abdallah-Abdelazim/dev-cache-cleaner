@@ -7,6 +7,7 @@
 #   ./clean-xcode-cache            # DerivedData, SwiftPM and Xcode caches
 #   ./clean-xcode-cache --all      # also CocoaPods/Carthage caches, device support, archives, dead simulators
 #   ./clean-xcode-cache --dry-run  # preview without deleting (combine with --all)
+#   ./clean-xcode-cache --help     # show this help
 
 set -euo pipefail
 
@@ -14,9 +15,10 @@ DRY_RUN=false
 ALL=false
 for arg in "$@"; do
   case "$arg" in
+    -h|--help) sed -n '2,/^$/{/^$/d;s/^# \{0,1\}//;p;}' "$0"; exit 0 ;;
     --dry-run) DRY_RUN=true ;;
     --all)     ALL=true ;;
-    *) echo "Unknown option: $arg"; echo "Usage: $0 [--all] [--dry-run]"; exit 1 ;;
+    *) echo "Unknown option: $arg"; echo "Usage: $0 [--all] [--dry-run] [--help]"; exit 1 ;;
   esac
 done
 

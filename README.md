@@ -28,6 +28,9 @@ SNAPSHOT versions are left untouched by default.
 # Preview without deleting (works with or without --all)
 ./clean-gradle-cache --dry-run
 ./clean-gradle-cache --all --dry-run
+
+# Show help
+./clean-gradle-cache --help
 ```
 
 #### Example output
@@ -79,6 +82,9 @@ Default run removes:
 # Preview without deleting (works with or without --all)
 ./clean-xcode-cache --dry-run
 ./clean-xcode-cache --all --dry-run
+
+# Show help
+./clean-xcode-cache --help
 ```
 
 ### Requirements
