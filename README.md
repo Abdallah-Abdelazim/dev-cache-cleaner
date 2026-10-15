@@ -1,4 +1,4 @@
-# gradle-cache-cleaner
+# dev-cache-cleaner
 
 Shell scripts that reclaim disk space by removing cached Maven, Gradle and Xcode/SwiftPM dependencies and build artifacts.
 
@@ -91,8 +91,8 @@ Default run removes:
 Clone the repo and make the scripts executable:
 
 ```sh
-git clone git@github.com:Abdallah-Abdelazim/gradle-cache-cleaner.git
-cd gradle-cache-cleaner
+git clone git@github.com:Abdallah-Abdelazim/dev-cache-cleaner.git
+cd dev-cache-cleaner
 chmod +x clean-gradle-cache clean-xcode-cache
 ```
 
