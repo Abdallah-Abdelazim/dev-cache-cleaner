@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+# clean-xcode-cache
+#
+# Deletes Xcode / SwiftPM build caches and downloaded dependencies.
+#
+# Usage:
+#   ./clean-xcode-cache            # DerivedData, SwiftPM and Xcode caches
+#   ./clean-xcode-cache --all      # also CocoaPods/Carthage caches, device support, archives, dead simulators
+#   ./clean-xcode-cache --dry-run  # preview without deleting (combine with --all)
+
+set -euo pipefail
+
+DRY_RUN=false
+ALL=false
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=true ;;
+    --all)     ALL=true ;;
+    *) echo "Unknown option: $arg"; echo "Usage: $0 [--all] [--dry-run]"; exit 1 ;;
+  esac
+done
+
+$DRY_RUN && echo "[DRY RUN — nothing will be deleted]" && echo ""
+
+if pgrep -x Xcode >/dev/null; then
+  echo "Warning: Xcode is running. Quit it first for a clean result."
+  echo ""
+fi
+
+human_size() {
+  awk -v kb="$1" 'BEGIN {
+    if      (kb >= 1048576) printf "%.1fG", kb / 1048576
+    else if (kb >= 1024)    printf "%.1fM", kb / 1024
+    else                    printf "%dK",   kb
+  }'
+}
+
+deleted=0
+total_kb=0
+
+remove_dir() {
+  local target="$1"
+  [[ -e "$target" ]] || return 0
+  local kb; kb=$(du -sk "$target" 2>/dev/null | awk '{print $1}') || kb=0
+  local size; size=$(human_size "$kb")
+  total_kb=$(( total_kb + kb ))
+  if $DRY_RUN; then
+    echo "  [would delete] $target  ($size)"
+  else
+    echo "  deleting  $target  ($size)"
+    rm -rf "$target"
+  fi
+  deleted=$(( deleted + 1 ))
+}
+
+L="$HOME/Library"
+
+echo "Cleaning Xcode and SwiftPM caches ..."
+remove_dir "$L/Developer/Xcode/DerivedData"
+remove_dir "$L/Caches/org.swift.swiftpm"
+remove_dir "$L/org.swift.swiftpm"
+remove_dir "$L/Caches/com.apple.dt.Xcode"
+
+if $ALL; then
+  echo ""
+  echo "Cleaning extras (--all) ..."
+  remove_dir "$L/Caches/CocoaPods"
+  remove_dir "$L/Caches/Carthage"
+  remove_dir "$L/Developer/Xcode/iOS DeviceSupport"
+  # Archives hold the dSYMs for shipped builds; they cannot be regenerated.
+  remove_dir "$L/Developer/Xcode/Archives"
+
+  if $DRY_RUN; then
+    echo "  [would run] xcrun simctl delete unavailable"
+  else
+    echo "  running   xcrun simctl delete unavailable"
+    xcrun simctl delete unavailable
+  fi
+fi
+
+echo ""
+plural() { (( $1 == 1 )) && echo "directory" || echo "directories"; }
+total=$(human_size "$total_kb")
+if $DRY_RUN; then
+  if (( deleted == 0 )); then
+    echo "Dry run — nothing to remove."
+  else
+    echo "Dry run — $deleted $(plural $deleted) would be removed ($total)."
+    echo "Run without --dry-run to delete."
+  fi
+else
+  if (( deleted == 0 )); then
+    echo "Nothing to remove — caches are already clean."
+  else
+    echo "Done — removed $deleted $(plural $deleted) ($total freed)."
+  fi
+fi
